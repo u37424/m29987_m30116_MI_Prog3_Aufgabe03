@@ -7,7 +7,7 @@ public class MyAction<T extends Comparable<? super T>> extends RecursiveAction {
 
     T[] array;
     final int start, end;
-    static final int SWITCH_SIZE =10;
+    static final int SWITCH_SIZE =25;
 
     MyAction(T[] array, int start, int end) {
         this.array = array;
