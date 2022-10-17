@@ -13,7 +13,7 @@ public class ThreadpoolTest {
             array[i] = new ComparableTestObject(r.nextInt(100));
         }
 
-        //NormalMerge.mergeSort(array, 0, array.length-1);
+        ComparableTestObject[] check = Arrays.copyOf(array, array.length);
 
         //Sort
         final int nThreads = Runtime.getRuntime().availableProcessors();
@@ -21,14 +21,12 @@ public class ThreadpoolTest {
         RecursiveAction a = new MyAction(array);
         fjp.invoke(a);
 
-        for (ComparableTestObject i : array) {
-            System.out.println(i.getValue());
+        Arrays.parallelSort(check);
+        boolean cmp = check.length == array.length;
+        for (int i = 0; cmp && i < check.length; ++i) {
+            cmp = check[i].compareTo(array[i]) == 0;
+            System.out.println("A " + array[i].getValue() + " B:" + check[i].getValue());
         }
-        for (int i = 1; i < array.length; i++) {
-            if (!(array[i].compareTo(array[i - 1]) >= 0)) {
-                System.out.println("Not sorted");
-                break;
-            }
-        }
+        System.out.printf(" Felder stimmen %s überein !", cmp ? "" : "nicht ");
     }
 }

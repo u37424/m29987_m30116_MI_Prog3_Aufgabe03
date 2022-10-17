@@ -1,86 +1,55 @@
 package de.medieninformatik.Threadpools;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.RecursiveAction;
 
 public class MyAction<T extends Comparable<? super T>> extends RecursiveAction {
 
-    private final int SWITCH_SIZE = 25;
+    T[] array;
+    final int start, end;
+    static final int SWITCH_SIZE =10;
 
-    private volatile T[] array;
-    private final int start;
-    private final int end;
-
-    public MyAction(T[] array) {
-        this(array, 0, array.length - 1);
-    }
-
-    public MyAction(T[] array, int start, int end) {
+    MyAction(T[] array, int start, int end) {
         this.array = array;
         this.start = start;
         this.end = end;
     }
 
-    /**
-     * The main computation performed by this task.
-     */
-    @Override
-    protected void compute() { // base case
-        if (start < end) {
-            // find the middle point
-            int middle = (start + end) / 2;
-            if ((end + 1) - start <= SWITCH_SIZE) {
-                NormalInsertionSort.sort(array, start, end);
-            } else {
-                MyAction l = new MyAction<>(array, start, middle); // sort first half
-                MyAction r = new MyAction<>(array, middle +1, end);  // sort second half
-                r.fork();
-                l.compute();
-                r.join();
-                merge(array, start, middle, end);
-            }
+    MyAction(T[] array) {
+        this(array, 0, array.length);
+    }
 
-            // if (!((end+1) - start <= SWITCH_SIZE)) merge(array, start, middle, end);
+    protected void compute() {
+        if (end - start < 2 || end- start <= SWITCH_SIZE)
+            insertionSort(start, end);
+        else {
+            int mid = (start + end) /2;
+            MyAction<T> l = new MyAction<>(array, start, mid);
+            MyAction<T> r = new  MyAction<>(array, mid, end);
+            l.fork();
+            r.compute();
+            l.join();
+            merge(start, mid, end);
         }
     }
 
-    static <T extends Comparable<? super T>> void merge(T[] array, int start, int middle, int end) {
-        ArrayList<T> leftArray = new ArrayList<>(middle - start + 1);
-        ArrayList<T> rightArray = new ArrayList<>(end - middle);
-        // fill in left array
-        int len = middle - start + 1;
-        for (int i = 0; i < len; ++i)
-            leftArray.add(i, array[start + i]);
-
-        // fill in right array
-        len = end - middle;
-        for (int i = 0; i < len; ++i)
-            rightArray.add(i, array[middle + 1 + i]);
-
-        /* Merge the temp arrays */
-
-        // initial indexes of first and second subarrays
-        int leftIndex = 0, rightIndex = 0;
-
-        // the index we will start at when adding the subarrays back into the main array
-        int currentIndex = start;
-
-        // compare each index of the subarrays adding the lowest value to the currentIndex
-        while (leftIndex < leftArray.size() && rightIndex < rightArray.size()) {
-            if (leftArray.get(leftIndex).compareTo(rightArray.get(rightIndex)) <= 0) {
-                array[currentIndex] = leftArray.get(leftIndex);
-                leftIndex++;
-            } else {
-                array[currentIndex] = rightArray.get(rightIndex);
-                rightIndex++;
+    void insertionSort(int start, int end) {
+            for (int i = start; i < end; i++) {
+                T einfuegeWert = array[i];
+                int lochPos = i;
+                while (lochPos > start && einfuegeWert.compareTo(array[lochPos - 1]) < 0) {
+                    array[lochPos] = array[lochPos - 1];
+                    lochPos--;
+                }
+                array[lochPos] = einfuegeWert;
             }
-            currentIndex++;
-        }
-
-        // copy remaining elements of leftArray[] if any
-        while (leftIndex < leftArray.size()) array[currentIndex++] = leftArray.get(leftIndex++);
-
-        // copy remaining elements of rightArray[] if any
-        while (rightIndex < rightArray.size()) array[currentIndex++] = rightArray.get(rightIndex++);
     }
+
+    void merge(int lo, int mid, int hi) {
+        T[] temp = Arrays.copyOfRange(array, lo, mid);
+        for (int i = 0, j = lo, k = mid; i < temp.length; j++)
+            array[j] = (k == hi || temp[i].compareTo(array[k]) < 0) ?
+                    temp[i++] : array[k++];
+    }
+
 }
