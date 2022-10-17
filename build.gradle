@@ -21,7 +21,7 @@ dependencies {
 
 application {
     mainModule = 'de.medieninformatik.Threadpools'
-    mainClass = 'de.medieninformatik.Threadpools.ThreadpoolTest'
+    mainClass = 'de.medieninformatik.Threadpools.ThreadpoolSort'
 }
 
 test {

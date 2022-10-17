@@ -15,7 +15,7 @@ import java.util.concurrent.RecursiveAction;
  * Diese Klasse sortiert einen Array vergleichbarer Elemente mithilfe von ForkJoinPool und parallelem Merge Sort / normalen Insertion Sort.<br>
  * Der sortierte Array wird auf Korrektheit ueberprueft.
  */
-public class ThreadpoolTest {
+public class ThreadpoolSort {
     /**
      * Ein Array wird mit vergleichbaren Objekten gefuellt und Mithilfe von ForkJoinPool, MergeSort und Insertion Sort sortiert.<br>
      * Danach wird der Array auf eine korrekte Sortierung ueberprueft.<br>
